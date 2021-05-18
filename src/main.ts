@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
-import {context, GitHub} from '@actions/github'
+
+import {GitHub, context} from '@actions/github'
 
 type Format = 'space-delimited' | 'csv' | 'json'
 type FileStatus = 'added' | 'modified' | 'removed' | 'renamed'
@@ -9,7 +10,11 @@ async function run(): Promise<void> {
     // Create GitHub client with the API token.
     const client = new GitHub(core.getInput('token', {required: true}))
     const format = core.getInput('format', {required: true}) as Format
-    const filter = core.getInput('filter', {required: true}) || '*'
+    const filter = core.getInput('filter', {required: false}) || '*'
+
+    const requireAheadInput = core.getInput('require_ahead', {required: false})
+    core.info(`Require Ahead: ${requireAheadInput}`)
+    const require_ahead = requireAheadInput.toLowerCase() === 'true'
 
     // Ensure that the format parameter is set properly.
     if (format !== 'space-delimited' && format !== 'csv' && format !== 'json') {
@@ -76,7 +81,7 @@ async function run(): Promise<void> {
     }
 
     // Ensure that the head commit is ahead of the base commit.
-    if (response.data.status !== 'ahead') {
+    if (require_ahead && response.data.status !== 'ahead') {
       core.setFailed(
         `The head commit for this ${context.eventName} event is not ahead of the base commit. ` +
           "Please submit an issue on this action's GitHub repo."

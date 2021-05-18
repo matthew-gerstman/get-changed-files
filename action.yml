@@ -8,6 +8,11 @@ runs:
   using: node12
   main: dist/index.js
 inputs:
+  filter:
+    description: >
+      Regex to filter outputs by filename
+    required: false
+    default: '*'
   token:
     description: >
       GitHub token for GitHub API requests.
@@ -20,6 +25,11 @@ inputs:
       Can be 'space-delimited', 'csv', or 'json'.
     required: true
     default: space-delimited
+  require_ahead:
+    description: >
+      Flag to set if the base commit must be ahead of the head commit
+    default: "true"
+    required: false
 outputs:
   all:
     description: >
